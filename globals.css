@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 :root {
+  /* Light theme colors */
+  --light-bg: #f8fafc;
+  --light-surface: #ffffff;
+  --light-card: #f1f5f9;
+  --light-border: #e2e8f0;
+  --light-text: #0f172a;
+  --light-text-secondary: #334155;
+  --light-text-muted: #64748b;
+  
   /* Dark theme colors */
   --dark-bg: #0c0c13;
   --dark-surface: #161622;
@@ -31,23 +40,45 @@
 
 /* General theme */
 body {
-  color: var(--dark-text);
-  background-color: var(--dark-bg);
+  color: var(--text);
+  background-color: var(--bg);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Base text colors for dark theme */
+/* Light theme */
+[data-theme="light"] {
+  --bg: var(--light-bg);
+  --surface: var(--light-surface);
+  --card: var(--light-card);
+  --border: var(--light-border);
+  --text: var(--light-text);
+  --text-secondary: var(--light-text-secondary);
+  --text-muted: var(--light-text-muted);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg: var(--dark-bg);
+  --surface: var(--dark-surface);
+  --card: var(--dark-card);
+  --border: var(--dark-border);
+  --text: var(--dark-text);
+  --text-secondary: var(--dark-text-secondary);
+  --text-muted: var(--dark-text-muted);
+}
+
+/* Base text colors */
 p, h1, h2, h3, h4, h5, h6, span, div {
-  color: var(--dark-text);
+  color: var(--text);
 }
 
 .text-secondary {
-  color: var(--dark-text-secondary);
+  color: var(--text-secondary);
 }
 
 .text-muted {
-  color: var(--dark-text-muted);
+  color: var(--text-muted);
 }
 
 /* Animated gradient effects */
@@ -73,33 +104,21 @@ p, h1, h2, h3, h4, h5, h6, span, div {
 .dynamic-card {
   background-color: var(--dark-surface);
   border-radius: 0.75rem;
-  border: 1px solid var(--dark-border);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--dark-surface), var(--dark-surface)), 
+                    linear-gradient(to right, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
 }
 
-.dynamic-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet), var(--accent-purple));
-  transform: scaleX(0);
-  transform-origin: 0 0;
-  transition: transform 0.5s ease;
-}
-
 .dynamic-card:hover {
   transform: translateY(-5px);
+  background-image: linear-gradient(var(--dark-surface), var(--dark-surface)), 
+                    linear-gradient(90deg, var(--accent-blue), var(--accent-violet), var(--accent-purple));
   box-shadow: 0 15px 30px -10px rgba(139, 92, 246, 0.15);
-  border-color: var(--accent-violet);
-}
-
-.dynamic-card:hover::before {
-  transform: scaleX(1);
 }
 
 /* Card with accent header and violet glow */
@@ -107,12 +126,18 @@ p, h1, h2, h3, h4, h5, h6, span, div {
   border-radius: 0.75rem;
   overflow: hidden;
   background-color: var(--dark-surface);
-  border: 1px solid var(--dark-border);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--dark-surface), var(--dark-surface)), 
+                    linear-gradient(to right, rgba(139, 92, 246, 0.3), rgba(99, 102, 241, 0.3));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .card-with-header:hover {
+  background-image: linear-gradient(var(--dark-surface), var(--dark-surface)), 
+                    linear-gradient(to right, var(--accent-violet), var(--accent-blue));
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
   transform: translateY(-2px);
 }
@@ -120,11 +145,18 @@ p, h1, h2, h3, h4, h5, h6, span, div {
 .card-with-header .header {
   background: linear-gradient(90deg, var(--dark-card), #252542);
   padding: 1rem;
-  border-bottom: 1px solid var(--dark-border);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .card-with-header .content {
   padding: 1.5rem;
+}
+
+/* Animate border gradient */
+@keyframes borderGradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Violet glow effect */
@@ -391,12 +423,12 @@ input::placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--dark-border);
+  background: linear-gradient(to bottom, var(--accent-violet), var(--accent-blue));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-violet);
+  background: linear-gradient(to bottom, var(--accent-violet-dark), var(--accent-blue-dark));
 }
 
 /* Transition for page content */
@@ -454,211 +486,154 @@ input:checked + .toggle-slider {
 input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
-/* Add to globals.css */
-@keyframes rgb-border {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Add these styles to your globals.css file */
+
+/* Chat Animation Effects */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
-  0% { opacity: 0.3; transform: scale(0.95); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-  100% { opacity: 0.3; transform: scale(0.95); }
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-/* These help with the z-index stacking for the full-screen overlay */
-.fullscreen-chat-overlay {
-  z-index: 9999;
-}
-/* Add to globals.css */
-@keyframes hover-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+@keyframes slideInRight {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
-@keyframes rgb-border {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes robot-eye {
-  0%, 90%, 100% { opacity: 1; transform: scale(1); }
-  95% { opacity: 0.5; transform: scale(0.8); }
-}
-
-@keyframes robot-talk {
-  0%, 100% { height: 2px; width: 8px; }
-  50% { height: 4px; width: 10px; }
-}
-
-@keyframes energy-wave {
-  0% { transform: scale(0.5); opacity: 0.7; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-
-/* These help with the z-index stacking for the full-screen overlay */
-.fullscreen-chat-overlay {
-  z-index: 9999;
-}
-/* Add these animations to your globals.css file */
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes slideInLeft {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-@keyframes pulse {
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out forwards;
+}
+
+/* Typing animation */
+@keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50% { opacity: 0; }
 }
 
-.animate-pulse {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background-color: currentColor;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+  vertical-align: middle;
 }
 
-.delay-100 {
-  animation-delay: 0.1s;
+/* Chat components */
+.chat-message {
+  max-width: 80%;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  animation-fill-mode: both;
+  animation-duration: 0.3s;
 }
 
-.delay-200 {
-  animation-delay: 0.2s;
+.user-message {
+  background: linear-gradient(to right, var(--accent-blue), var(--accent-violet));
+  color: white;
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 2px;
+  align-self: flex-end;
+  animation-name: slideInRight;
 }
 
-/* Voice visualization animations */
-@keyframes voice-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
+.ai-message {
+  background: linear-gradient(to right, var(--dark-card), var(--dark-surface));
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 16px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  align-self: flex-start;
+  animation-name: slideInLeft;
 }
 
-.animate-voice-pulse {
-  animation: voice-pulse 1s infinite;
+/* Loading animations */
+@keyframes bounce-delay {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
 }
 
-/* Sound wave animation for audio visualization */
-@keyframes sound-wave {
-  0% { height: 3px; }
-  50% { height: 15px; }
-  100% { height: 3px; }
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
 }
 
-.sound-wave {
-  width: 3px;
-  background-color: rgba(139, 92, 246, 0.8);
-  border-radius: 3px;
-  margin: 0 1px;
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce-delay 1.4s infinite ease-in-out both;
 }
 
-.sound-wave:nth-child(1) { animation: sound-wave 0.9s ease-in-out infinite; }
-.sound-wave:nth-child(2) { animation: sound-wave 0.9s ease-in-out infinite 0.1s; }
-.sound-wave:nth-child(3) { animation: sound-wave 0.9s ease-in-out infinite 0.2s; }
-.sound-wave:nth-child(4) { animation: sound-wave 0.9s ease-in-out infinite 0.3s; }
-.sound-wave:nth-child(5) { animation: sound-wave 0.9s ease-in-out infinite 0.4s; }
-/* Add these animations to your globals.css file for the product cards */
-
-/* Product card entrance animation */
-@keyframes card-enter {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
 }
 
-.animate-card-enter {
-  animation: card-enter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
 }
 
-/* Product card exit animation */
-@keyframes card-exit {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-  }
+/* Button animations */
+.chat-button {
+  transition: all 0.3s ease;
 }
 
-.animate-card-exit {
-  animation: card-exit 0.3s ease-in forwards;
+.chat-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
-/* Shimmer effect for loading states */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.03)
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* Pulse effect for interactive elements */
-@keyframes subtle-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.animate-subtle-pulse {
-  animation: subtle-pulse 2s ease-in-out infinite;
-}
-
-/* Line clamp utility (if not already in your Tailwind setup) */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-/* Add this to your globals.css file */
-button, a {
-  /* Prevent flash on hover */
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, 
-              color 0.2s ease, box-shadow 0.2s ease !important;
-  /* Ensure no background flash */
-  background-color: transparent;
-  /* Use transform instead of position changes for smoother animations */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* Fix for gradient buttons */
-.bg-gradient-to-r, [class*="from-"] {
+/* AI glow effects */
+.ai-glow {
   position: relative;
-  z-index: 1;
-  overflow: hidden;
+}
+
+.ai-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(to right, var(--accent-blue), var(--accent-violet));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  z-index: -1;
 }
 @keyframes rgb-stroke {
   0% { stroke-dashoffset: 0; opacity: 1; }
@@ -709,158 +684,6 @@ button, a {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.delay-150 {
-  animation-delay: 150ms;
-}
-/* Add these to your globals.css for the enhanced Cherry AI logo */
-
-/* Animated gradient backgrounds */
-@keyframes gradient-x {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-.animate-gradient-x {
-  background-size: 200% auto;
-  animation: gradient-x 8s linear infinite;
-}
-
-.animate-gradient-fast {
-  animation-duration: 3s;
-}
-
-/* Floating animations */
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-5px) translateX(3px); }
-}
-
-@keyframes float-med {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(4px) translateX(-2px); }
-}
-
-@keyframes float-reverse {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(3px) translateX(3px); }
-}
-
-.animate-float-slow {
-  animation: float-slow 8s ease-in-out infinite;
-}
-
-.animate-float-med {
-  animation: float-med 5s ease-in-out infinite;
-}
-
-.animate-float-reverse {
-  animation: float-reverse 7s ease-in-out infinite;
-}
-
-/* Rotation animations */
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes spin-reverse-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
-
-@keyframes spin-med {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes rotate-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-.animate-spin-reverse-slow {
-  animation: spin-reverse-slow 15s linear infinite;
-}
-
-.animate-spin-med {
-  animation: spin-med 12s linear infinite;
-}
-
-.animate-rotate-slow {
-  animation: rotate-slow 30s linear infinite;
-}
-
-/* Blinking animations */
-@keyframes blink {
-  0%, 90%, 100% { opacity: 1; transform: scale(1); }
-  95% { opacity: 0.5; transform: scale(0.8); }
-}
-
-@keyframes blink-delayed {
-  0%, 85%, 100% { opacity: 1; transform: scale(1); }
-  90% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.animate-blink {
-  animation: blink 4s infinite;
-}
-
-.animate-blink-delayed {
-  animation: blink-delayed 4s infinite;
-}
-
-/* Pulsing animations */
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Glow effects */
-.shadow-glow {
-  box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.6);
-}
-
-/* Hover effects for the logo */
-.cherry-avatar:hover .cherry-face {
-  transform: scale(1.05);
-}
-
-.cherry-avatar:hover .cherry-eye {
-  background-color: rgb(56, 232, 255);
-  box-shadow: 0 0 12px 3px rgba(56, 232, 255, 0.7);
-}
-
-/* Smooth transitions */
-.cherry-face, .cherry-eye {
-  transition: all 0.3s ease;
-}
-
 /* Add this to your globals.css file */
 
 /* Theme variables */
@@ -888,6 +711,7 @@ button, a {
   --light-surface: #ffffff;
   --light-card: #f1f5f9;
   --light-border: #e2e8f0;
+  --light-card-shadow: rgba(0, 0, 0, 0.07);
   --light-text: #1e293b;
   --light-text-secondary: #475569;
   --light-text-muted: #64748b;
@@ -1079,8 +903,6 @@ p, h1, h2, h3, h4, h5, h6, span, div {
 [data-theme="light"] .glass-card {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
-
-/* Enhanced Light Theme Implementation for Cherry AI */
 
 /* =========== BASE THEME VARIABLES =========== */
 :root {
@@ -1500,3 +1322,77 @@ p, h1, h2, h3, h4, h5, h6, span, div {
 [data-theme="light"] .car-data-row {
   border-bottom: 1px solid var(--light-border) !important;
 }
+
+/* =========== LIGHT THEME SPECIFIC FIXES =========== */
+/* Fix logo clarity in light theme */
+[data-theme="light"] .cognitive-assistant {
+  color: #7c3aed !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] svg polygon,
+[data-theme="light"] svg path {
+  fill: #7c3aed !important;
+  stroke: #7c3aed !important;
+}
+
+/* Fix review cards and summary */
+[data-theme="light"] .card-dark-header {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+[data-theme="light"] .card-dark-header .header {
+  background: #f9f7ff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+[data-theme="light"] .card-dark-header .content {
+  background-color: white !important;
+}
+
+/* Fix text colors in reviews */
+[data-theme="light"] .Review h3,
+[data-theme="light"] .Reviews h2,
+[data-theme="light"] .card-dark-header h2 {
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .review-text,
+[data-theme="light"] .card-dark-header p {
+  color: #374151 !important;
+}
+
+/* Fix Chat with AI button */
+[data-theme="light"] .Chat.with.AI {
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 100 !important;
+}
+
+[data-theme="light"] .fixed.bottom-6.right-6 button {
+  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
+  color: white !important;
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5) !important;
+}
+
+/* Fix car illustration in light theme */
+[data-theme="light"] .Car svg,
+[data-theme="light"] svg:has(path[d^="M10 18v-6l4 6v-6"]) {
+  filter: brightness(0.8) contrast(1.2);
+}
+
+[data-theme="light"] .Car svg path,
+[data-theme="light"] svg:has(path[fill="#4B5563"]) path {
+  fill: #6366f1 !important;
+}
+
+/* Fix star colors */
+[data-theme="light"] .text-yellow-500,
+[data-theme="light"] .fill-yellow-500 {
+  color: #f59e0b !important;
+  fill: #f59e0b !important;
+}
+
