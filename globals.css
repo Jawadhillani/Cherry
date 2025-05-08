@@ -486,7 +486,6 @@ input:checked + .toggle-slider {
 input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
-/* Add these styles to your globals.css file */
 
 /* Chat Animation Effects */
 @keyframes fadeIn {
@@ -635,6 +634,7 @@ input:checked + .toggle-slider:before {
   opacity: 0.5;
   z-index: -1;
 }
+
 @keyframes rgb-stroke {
   0% { stroke-dashoffset: 0; opacity: 1; }
   100% { stroke-dashoffset: 50; opacity: 0.8; }
@@ -684,662 +684,48 @@ input:checked + .toggle-slider:before {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
-/* Add this to your globals.css file */
 
-/* Theme variables */
-:root {
-  /* Base theme colors - dark theme (default) */
-  --bg-primary: var(--dark-bg);
-  --bg-surface: var(--dark-surface);
-  --bg-card: var(--dark-card);
-  --border-color: var(--dark-border);
-  --text-primary: var(--dark-text);
-  --text-secondary: var(--dark-text-secondary);
-  --text-muted: var(--dark-text-muted);
-  
-  /* Dark theme colors (already defined) */
-  --dark-bg: #0c0c13;
-  --dark-surface: #161622;
-  --dark-card: #1e1e2d;
-  --dark-border: #2a2a40;
-  --dark-text: #f8fafc;
-  --dark-text-secondary: #cbd5e1;
-  --dark-text-muted: #94a3b8;
-  
-  /* Light theme colors (new) */
-  --light-bg: #f8fafc;
-  --light-surface: #ffffff;
-  --light-card: #f1f5f9;
-  --light-border: #e2e8f0;
-  --light-card-shadow: rgba(0, 0, 0, 0.07);
-  --light-text: #1e293b;
-  --light-text-secondary: #475569;
-  --light-text-muted: #64748b;
-  
-  /* Accent colors - remain consistent across themes */
-  --accent-blue: #3b82f6;
-  --accent-blue-dark: #2563eb;
-  --accent-violet: #8b5cf6;
-  --accent-violet-dark: #7c3aed;
-  --accent-purple: #a855f7;
-  --accent-indigo: #6366f1;
-  --accent-pink: #ec4899;
-  --accent-green: #10b981;
-  --accent-yellow: #f59e0b;
-  --accent-red: #ef4444;
-  
-  /* Neon effects - more subtle in light theme */
-  --neon-violet: rgba(139, 92, 246, 0.7);
-  --neon-blue: rgba(59, 130, 246, 0.7);
-}
+/* =========================
+   TARGETED LIGHT THEME FIXES
+   ========================= */
 
-/* Apply theme variables based on data-theme attribute */
-[data-theme="light"] {
-  /* Switch to light theme variables */
-  --bg-primary: var(--light-bg);
-  --bg-surface: var(--light-surface);
-  --bg-card: var(--light-card);
-  --border-color: var(--light-border);
-  --text-primary: var(--light-text);
-  --text-secondary: var(--light-text-secondary);
-  --text-muted: var(--light-text-muted);
-  
-  /* Adjust neon effects for light theme */
-  --neon-violet: rgba(139, 92, 246, 0.4);
-  --neon-blue: rgba(59, 130, 246, 0.4);
-}
-
-/* Update existing selectors to use the theme variables */
-body {
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Base text colors based on theme */
-p, h1, h2, h3, h4, h5, h6, span, div {
-  color: var(--text-primary);
-}
-
-.text-secondary {
-  color: var(--text-secondary);
-}
-
-.text-muted {
-  color: var(--text-muted);
-}
-
-/* Card styles for the theme */
-.dynamic-card {
-  background-color: var(--bg-surface);
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.card-with-header {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.card-with-header .header {
-  background: linear-gradient(90deg, var(--bg-card), var(--bg-surface));
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* Navbar adjustments for light theme */
-[data-theme="light"] .sticky.top-0 {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--light-border);
-}
-
-/* Adjust buttons for light theme */
-[data-theme="light"] .bg-black\/40 {
-  background-color: rgba(241, 245, 249, 0.8) !important;
-}
-
-[data-theme="light"] .border-gray-800 {
-  border-color: var(--light-border) !important;
-}
-
-/* Form controls */
-[data-theme="light"] input, 
-[data-theme="light"] select, 
-[data-theme="light"] textarea {
-  color: var(--light-text) !important;
-  background-color: white;
-  border: 1px solid var(--light-border);
-}
-
-/* Gradient text adjustments for better visibility in light mode */
-[data-theme="light"] .gradient-text {
-  background: linear-gradient(90deg, var(--accent-blue-dark), var(--accent-violet-dark), var(--accent-purple));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Make card shadows more subtle in light mode */
-[data-theme="light"] .card-with-header:hover {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Special treatment for the hero section in light mode */
-[data-theme="light"] .hero-section .bg-gradient-to-br {
-  background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.1), rgba(79, 70, 229, 0.05)) !important;
-}
-
-/* Adjust the dark overlay patterns for light theme */
-[data-theme="light"] .absolute.inset-0.bg-gradient-to-br {
-  background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.8)) !important;
-}
-
-/* Add shadows to cards in light mode for better depth */
-[data-theme="light"] .dynamic-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* Adjust specific component backgrounds */
-[data-theme="light"] .bg-gray-900,
-[data-theme="light"] .bg-gray-800,
-[data-theme="light"] .bg-gray-700,
-[data-theme="light"] .bg-black {
-  background-color: var(--light-card) !important;
-}
-
-/* Fix text colors in light mode */
-[data-theme="light"] .text-gray-300,
-[data-theme="light"] .text-gray-200,
-[data-theme="light"] .text-gray-100,
-[data-theme="light"] .text-white {
-  color: var(--light-text) !important;
-}
-
-[data-theme="light"] .text-gray-400,
-[data-theme="light"] .text-gray-500 {
-  color: var(--light-text-secondary) !important;
-}
-
-/* Adjust icon colors for light theme */
-[data-theme="light"] .text-violet-400,
-[data-theme="light"] .text-blue-400,
-[data-theme="light"] .text-indigo-400 {
-  color: var(--accent-violet-dark) !important;
-}
-
-/* Footer styling for light theme */
-[data-theme="light"] footer {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-top: 1px solid var(--light-border);
-}
-
-/* Scrollbar styling for light theme */
-[data-theme="light"] ::-webkit-scrollbar-track {
-  background: var(--light-surface);
-}
-
-[data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: var(--light-border);
-}
-
-/* Chat interface adjustments */
-[data-theme="light"] .neu-dark {
-  background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
-}
-
-[data-theme="light"] .neu-glass,
-[data-theme="light"] .neu-glass-bg {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-/* Add a light drop shadow to elements in light mode for depth */
-[data-theme="light"] .card-with-header,
-[data-theme="light"] .dynamic-card,
-[data-theme="light"] .glass-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* =========== BASE THEME VARIABLES =========== */
-:root {
-  /* Dark theme colors (default) */
-  --dark-bg: #0c0c13;
-  --dark-surface: #161622;
-  --dark-card: #1e1e2d;
-  --dark-border: #2a2a40;
-  --dark-text: #f8fafc;
-  --dark-text-secondary: #cbd5e1;
-  --dark-text-muted: #94a3b8;
-  
-  /* Light theme colors */
-  --light-bg: #f5f7fa;
-  --light-surface: #ffffff;
-  --light-card: #f0f4f8;
-  --light-border: #e2e8f0;
-  --light-card-shadow: rgba(0, 0, 0, 0.07);
-  --light-text: #1e293b;
-  --light-text-secondary: #475569;
-  --light-text-muted: #64748b;
-  
-  /* Accent colors - consistent across themes */
-  --accent-blue: #3b82f6;
-  --accent-blue-dark: #2563eb;
-  --accent-violet: #8b5cf6;
-  --accent-violet-light: #a78bfa;
-  --accent-violet-dark: #7c3aed;
-  --accent-purple: #a855f7;
-  --accent-indigo: #6366f1;
-  --accent-pink: #ec4899;
-  --accent-green: #10b981;
-  --accent-yellow: #f59e0b;
-  --accent-red: #ef4444;
-  
-  /* Theme variables (default to dark) */
-  --bg-primary: var(--dark-bg);
-  --bg-surface: var(--dark-surface);
-  --bg-card: var(--dark-card);
-  --border-color: var(--dark-border);
-  --card-shadow: transparent;
-  --text-primary: var(--dark-text);
-  --text-secondary: var(--dark-text-secondary);
-  --text-muted: var(--dark-text-muted);
-}
-
-/* Light theme variables */
-[data-theme="light"] {
-  --bg-primary: var(--light-bg);
-  --bg-surface: var(--light-surface);
-  --bg-card: var(--light-card);
-  --border-color: var(--light-border);
-  --card-shadow: var(--light-card-shadow);
-  --text-primary: var(--light-text);
-  --text-secondary: var(--light-text-secondary);
-  --text-muted: var(--light-text-muted);
-}
-
-/* =========== GLOBAL STYLES =========== */
-body {
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Base text colors */
-p, h1, h2, h3, h4, h5, h6, span, div {
-  color: var(--text-primary);
-}
-
-.text-secondary {
-  color: var(--text-secondary) !important;
-}
-
-.text-muted {
-  color: var(--text-muted) !important;
-}
-
-/* Fix color classes in light mode */
-[data-theme="light"] .text-white,
-[data-theme="light"] .text-gray-200,
-[data-theme="light"] .text-gray-300 {
-  color: var(--light-text) !important;
-}
-
-[data-theme="light"] .text-gray-400,
-[data-theme="light"] .text-gray-500 {
-  color: var(--light-text-secondary) !important;
-}
-
-/* =========== NAVBAR =========== */
-[data-theme="light"] .sticky.top-0 {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--light-border);
-}
-
-[data-theme="light"] nav .bg-gradient-to-r {
-  background: linear-gradient(to right, var(--accent-violet-dark), var(--accent-purple)) !important;
-}
-
-/* =========== CHAT INTERFACE =========== */
-/* Chat container */
-[data-theme="light"] .chat-container {
-  background-color: var(--light-surface);
-  border: 1px solid var(--light-border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-/* Chat header */
-[data-theme="light"] .chat-container .header,
-[data-theme="light"] .neural-automotive-assistant {
-  background: linear-gradient(to right, #f1f1fc, #f5efff) !important;
-  border-bottom: 1px solid var(--light-border);
-  color: var(--accent-violet-dark);
-}
-
-/* Message bubbles */
-[data-theme="light"] .message-bubble.ai-message,
-[data-theme="light"] .neu-glass-ai {
-  background-color: rgba(139, 92, 246, 0.08) !important;
-  border: 1px solid rgba(139, 92, 246, 0.15) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-[data-theme="light"] .message-bubble.user-message,
-[data-theme="light"] .neu-glass-user {
-  background-color: rgba(59, 130, 246, 0.08) !important;
-  border: 1px solid rgba(59, 130, 246, 0.15) !important;
-}
-
-/* Suggestion chips */
-[data-theme="light"] .suggestion-chip,
-[data-theme="light"] .chat-genie-container button {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
-  color: var(--accent-violet-dark) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light"] .suggestion-chip:hover,
-[data-theme="light"] .chat-genie-container button:hover {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-  border-color: rgba(139, 92, 246, 0.5) !important;
-}
-
-/* Chat input */
-[data-theme="light"] .chat-container .input-area {
-  background-color: var(--light-card);
-  border-top: 1px solid var(--light-border);
-}
-
-[data-theme="light"] .chat-container input,
-[data-theme="light"] .chat-container textarea {
-  background-color: white;
-  border: 1px solid var(--light-border);
-  color: var(--light-text);
-}
-
-/* Neural Interface Card */
-[data-theme="light"] .neu-dark {
-  background: linear-gradient(to bottom right, #f5f7fa, #f0f4f8) !important;
-}
-
-[data-theme="light"] .neural-automotive-assistant {
-  background: linear-gradient(to right, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.08)) !important;
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  color: var(--accent-violet-dark);
-}
-
-/* Key Vehicle Highlights section */
-[data-theme="light"] .key-vehicle-highlights {
-  background-color: white !important;
-  border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-/* =========== REVIEW CARDS =========== */
-/* Review card */
-[data-theme="light"] .review-card,
-[data-theme="light"] .dynamic-card {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="light"] .review-card:hover,
-[data-theme="light"] .dynamic-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
-}
-
-/* Review card header */
-[data-theme="light"] .review-card .header,
-[data-theme="light"] .card-with-header .header {
-  background: linear-gradient(to right, #f8f9fa, #f3f4f8) !important;
-  border-bottom: 1px solid var(--light-border);
-}
-
-/* AI Generated tag */
-[data-theme="light"] .ai-generated-tag {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-  border: 1px solid rgba(139, 92, 246, 0.2) !important;
-  color: var(--accent-violet-dark) !important;
-}
-
-/* Review Summary Card */
-[data-theme="light"] .review-summary-card {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-/* Star ratings */
-[data-theme="light"] .star-rating .text-yellow-500 {
-  color: #f59e0b !important; /* Keep stars yellow/gold */
-}
-
-/* Sentiment bars */
-[data-theme="light"] .sentiment-bar {
-  background-color: rgba(240, 240, 240, 0.6) !important;
-}
-
-[data-theme="light"] .sentiment-bar .positive-bar {
-  background-color: #10b981 !important;
-}
-
-[data-theme="light"] .sentiment-bar .negative-bar {
-  background-color: #ef4444 !important;
-}
-
-/* =========== CAR CARDS =========== */
-/* Car card */
-[data-theme="light"] .car-card,
-[data-theme="light"] .car-entry-staggered > div {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light"] .car-card:hover,
-[data-theme="light"] .car-entry-staggered > div:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-/* Car image area with gradient */
-[data-theme="light"] .car-image-area,
-[data-theme="light"] .bg-gradient-to-br {
-  background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05)) !important;
-  border-bottom: 1px solid var(--light-border);
-}
-
-/* Car spec badges */
-[data-theme="light"] .car-spec-badge,
-[data-theme="light"] .bg-black\/60 {
-  background-color: rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  color: var(--accent-violet-dark) !important;
-}
-
-/* Car details section */
-[data-theme="light"] .car-details {
-  background-color: white !important;
-  border-top: 1px solid var(--light-border);
-}
-
-/* Car illustration */
-[data-theme="light"] .car-illustration path {
-  fill: var(--accent-violet-dark) !important;
-  stroke: var(--accent-violet-dark) !important;
-}
-
-/* =========== VEHICLE SPECS DISPLAY =========== */
-/* Specs container */
-[data-theme="light"] .specs-container {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid var(--light-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-/* Spec items */
-[data-theme="light"] .spec-item {
-  background-color: white !important;
-  border: 1px solid rgba(226, 232, 240, 0.6) !important;
-}
-
-/* Spec icons */
-[data-theme="light"] .spec-icon {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-  color: var(--accent-violet-dark) !important;
-}
-
-/* =========== BUTTONS & INTERACTIVE ELEMENTS =========== */
-/* Primary button */
-[data-theme="light"] .btn-primary,
-[data-theme="light"] .bg-gradient-to-r.from-violet-600.to-purple-700 {
-  background: linear-gradient(to right, var(--accent-violet-dark), var(--accent-purple)) !important;
-  color: white !important;
-  border: none !important;
-}
-
-/* Secondary button */
-[data-theme="light"] .btn-secondary,
-[data-theme="light"] .bg-black\/40 {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  color: var(--light-text) !important;
-}
-
-[data-theme="light"] .btn-secondary:hover {
-  border-color: rgba(139, 92, 246, 0.3) !important;
-  background-color: rgba(139, 92, 246, 0.05) !important;
-}
-
-/* Filter chips */
-[data-theme="light"] .filter-chip {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  color: var(--light-text) !important;
-}
-
-[data-theme="light"] .filter-chip.active {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-  border-color: rgba(139, 92, 246, 0.3) !important;
-  color: var(--accent-violet-dark) !important;
-}
-
-/* Search input */
-[data-theme="light"] .search-input,
-[data-theme="light"] input[type="text"],
-[data-theme="light"] input[type="search"] {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  color: var(--light-text) !important;
-}
-
-/* =========== HOMEPAGE ELEMENTS =========== */
-/* Hero section */
-[data-theme="light"] .hero-section {
-  background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.05), rgba(168, 85, 247, 0.02)) !important;
-  border: 1px solid rgba(226, 232, 240, 0.6);
-}
-
-/* Category cards */
-[data-theme="light"] .category-card {
-  background-color: white !important;
-  border: 1px solid var(--light-border) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-[data-theme="light"] .category-icon {
-  background: linear-gradient(to bottom right, var(--accent-violet), var(--accent-purple)) !important;
-  color: white !important;
-}
-
-/* Featured car background */
-[data-theme="light"] .featured-car-background {
-  background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.05)) !important;
-}
-
-/* =========== UTILITY CLASSES =========== */
-/* Background fixes */
-[data-theme="light"] .bg-black,
-[data-theme="light"] .bg-gray-900,
-[data-theme="light"] .bg-gray-800,
-[data-theme="light"] .bg-gray-700 {
-  background-color: white !important;
-}
-
-[data-theme="light"] .bg-black\/50,
-[data-theme="light"] .bg-black\/40,
-[data-theme="light"] .bg-black\/30 {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Border fixes */
-[data-theme="light"] .border-gray-800 {
-  border-color: var(--light-border) !important;
-}
-
-/* Glows and shadows */
-[data-theme="light"] .shadow-violet-500\/20,
-[data-theme="light"] .shadow-violet-600\/20 {
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.15) !important;
-}
-
-/* =========== SPECIFIC COMPONENT OVERRIDES =========== */
-/* "Neural Automotive Assistant" title */
-[data-theme="light"] .neural-automotive-assistant h2,
-[data-theme="light"] .header h2 {
-  color: var(--accent-violet-dark) !important;
-}
-
-/* "Generate AI Review" button */
-[data-theme="light"] .generate-ai-review-btn {
-  background-color: rgba(139, 92, 246, 0.1) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3) !important;
-  color: var(--accent-violet-dark) !important;
-}
-
-/* "Chat with AI" button */
-[data-theme="light"] .chat-with-ai {
-  background: linear-gradient(to right, var(--accent-violet-dark), var(--accent-purple)) !important;
-  color: white !important;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.2) !important;
-}
-
-/* Fix for page sections with angled bg patterns */
-[data-theme="light"] [style*="background-image"] {
-  background-image: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 25%, transparent 25%, transparent 50%, rgba(139, 92, 246, 0.05) 50%, rgba(139, 92, 246, 0.05) 75%, transparent 75%, transparent) !important;
-  background-size: 20px 20px !important;
-}
-
-/* Car data display rows */
-[data-theme="light"] .car-data-row {
-  border-bottom: 1px solid var(--light-border) !important;
-}
-
-/* =========== LIGHT THEME SPECIFIC FIXES =========== */
-/* Fix logo clarity in light theme */
+/* ===== Logo Fixes ===== */
+/* Fix the logo in the navbar */
 [data-theme="light"] .cognitive-assistant {
   color: #7c3aed !important;
-  font-weight: 600;
+  font-weight: 700 !important;
+  text-shadow: none !important;
 }
 
-[data-theme="light"] svg polygon,
-[data-theme="light"] svg path {
+/* Fix the logo SVG - specifically targeting the purple cube */
+[data-theme="light"] nav svg polygon,
+[data-theme="light"] nav svg path,
+[data-theme="light"] .sticky svg polygon, 
+[data-theme="light"] .sticky svg path {
   fill: #7c3aed !important;
   stroke: #7c3aed !important;
 }
 
-/* Fix review cards and summary */
+/* Ensure the navbar background is solid enough for contrast */
+[data-theme="light"] .sticky.top-0 {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Fix navbar text color in light mode */
+[data-theme="light"] .sticky.top-0 a,
+[data-theme="light"] .sticky.top-0 button {
+  color: #111827 !important;
+}
+
+/* ===== Car Detail Page Fixes ===== */
+/* Main car detail header */
 [data-theme="light"] .card-dark-header {
   background-color: white !important;
   border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 
 [data-theme="light"] .card-dark-header .header {
@@ -1351,48 +737,720 @@ p, h1, h2, h3, h4, h5, h6, span, div {
   background-color: white !important;
 }
 
-/* Fix text colors in reviews */
-[data-theme="light"] .Review h3,
-[data-theme="light"] .Reviews h2,
+/* Fix car name and details in CarDetail */
+[data-theme="light"] .card-dark-header h1,
 [data-theme="light"] .card-dark-header h2 {
   color: #111827 !important;
   font-weight: 700 !important;
 }
 
-[data-theme="light"] .review-text,
-[data-theme="light"] .card-dark-header p {
+[data-theme="light"] .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+/* Fix "Back to listing" button */
+[data-theme="light"] .flex.items-center.text-blue-600 {
+  color: #2563eb !important;
+}
+
+/* Fix car spec items and their icons */
+[data-theme="light"] .bg-blue-100,
+[data-theme="light"] .bg-green-100,
+[data-theme="light"] .bg-purple-100,
+[data-theme="light"] .bg-yellow-100 {
+  opacity: 0.8 !important;
+}
+
+[data-theme="light"] .text-blue-600,
+[data-theme="light"] .text-green-600,
+[data-theme="light"] .text-purple-600,
+[data-theme="light"] .text-yellow-600 {
+  color: #7c3aed !important;
+}
+
+[data-theme="light"] .font-medium {
+  color: #111827 !important;
+}
+
+/* Fix car image placeholder */
+[data-theme="light"] .h-48.bg-gradient-to-r {
+  background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+}
+
+[data-theme="light"] .h-48.bg-gradient-to-r span {
+  color: #3b82f6 !important;
+  font-weight: bold;
+}
+
+/* Fix "Generate AI Review" and "Chat" buttons */
+[data-theme="light"] .bg-gray-800.text-white {
+  background-color: #7c3aed !important;
+  color: white !important;
+  border: none !important;
+}
+
+[data-theme="light"] .bg-blue-50.text-blue-600 {
+  background-color: white !important;
+  border: 1px solid #3b82f6 !important;
+  color: #3b82f6 !important;
+}
+
+/* ===== Reviews Section Fixes ===== */
+/* Review cards */
+[data-theme="light"] .bg-white.p-4.rounded-lg.border {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .bg-white.p-4.rounded-lg.border:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border-color: #d1d5db !important;
+}
+
+/* Fix review title and text */
+[data-theme="light"] .font-bold.text-gray-900 {
+  color: #111827 !important;
+}
+
+[data-theme="light"] .text-sm.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+[data-theme="light"] .mt-2.text-gray-700 {
   color: #374151 !important;
 }
 
-/* Fix Chat with AI button */
-[data-theme="light"] .Chat.with.AI {
-  position: fixed !important;
-  bottom: 1.5rem !important;
-  right: 1.5rem !important;
-  z-index: 100 !important;
+/* Fix AI Generated tag */
+[data-theme="light"] .text-xs.text-blue-600 {
+  color: #2563eb !important;
 }
 
-[data-theme="light"] .fixed.bottom-6.right-6 button {
-  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
-  color: white !important;
-  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5) !important;
-}
-
-/* Fix car illustration in light theme */
-[data-theme="light"] .Car svg,
-[data-theme="light"] svg:has(path[d^="M10 18v-6l4 6v-6"]) {
-  filter: brightness(0.8) contrast(1.2);
-}
-
-[data-theme="light"] .Car svg path,
-[data-theme="light"] svg:has(path[fill="#4B5563"]) path {
-  fill: #6366f1 !important;
-}
-
-/* Fix star colors */
+/* Fix star ratings */
 [data-theme="light"] .text-yellow-500,
 [data-theme="light"] .fill-yellow-500 {
   color: #f59e0b !important;
   fill: #f59e0b !important;
+}
+
+/* Fix empty reviews state */
+[data-theme="light"] .bg-gray-50.p-8.rounded-lg.text-center {
+  background-color: #f9fafb !important;
+  border: 1px dashed #e5e7eb !important;
+}
+
+[data-theme="light"] .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #d1d5db !important;
+}
+
+/* ===== Review Summary Card Fixes ===== */
+[data-theme="light"] .bg-blue-100.p-3.rounded-full {
+  background-color: #dbeafe !important;
+}
+
+[data-theme="light"] .text-blue-600.fill-blue-600 {
+  color: #2563eb !important;
+  fill: #2563eb !important;
+}
+
+[data-theme="light"] .text-3xl.font-bold.text-gray-900 {
+  color: #111827 !important;
+}
+
+/* Fix sentiment bars */
+[data-theme="light"] .text-green-700 {
+  color: #047857 !important;
+}
+
+[data-theme="light"] .text-red-700 {
+  color: #b91c1c !important;
+}
+
+[data-theme="light"] .bg-gray-200.rounded-full {
+  background-color: #e5e7eb !important;
+}
+
+[data-theme="light"] .bg-green-500 {
+  background-color: #10b981 !important;
+}
+
+[data-theme="light"] .bg-red-500 {
+  background-color: #ef4444 !important;
+}
+
+/* ===== Chat with AI Button Fixes ===== */
+[data-theme="light"] .fixed.bottom-6.right-6 button {
+  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
+  color: white !important;
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* ===== Fix ALL Light/Dark Text Colors ===== */
+/* Make sure ALL light text is dark in light mode */
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-gray-100,
+[data-theme="light"] .text-gray-200,
+[data-theme="light"] .text-gray-300 {
+  color: #111827 !important;
+}
+
+/* Make sure ALL buttons have proper contrast */
+[data-theme="light"] button.bg-black,
+[data-theme="light"] button.bg-gray-900,
+[data-theme="light"] button.bg-gray-800,
+[data-theme="light"] button.bg-gray-700 {
+  background-color: white !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+[data-theme="light"] button.bg-black:hover,
+[data-theme="light"] button.bg-gray-900:hover,
+[data-theme="light"] button.bg-gray-800:hover,
+[data-theme="light"] button.bg-gray-700:hover {
+  background-color: #f9fafb !important;
+  border-color: #7c3aed !important;
+}
+
+/* Fix Cognitive Assistant logo image and text 100% */
+[data-theme="light"] .COGNITIVE.ASSISTANT img,
+[data-theme="light"] img.cognitive-assistant,
+[data-theme="light"] .logo svg,
+[data-theme="light"] .cognitive-logo svg {
+  filter: brightness(0.8) contrast(1.5) hue-rotate(0deg) !important;
+}
+
+/* Override any other navbar SVG colors */
+[data-theme="light"] .navbar svg,
+[data-theme="light"] .nav svg {
+  color: #7c3aed !important;
+}
+
+/* Fix the AI review card and pros/cons */
+[data-theme="light"] .text-green-700,
+[data-theme="light"] .text-red-700 {
+  font-weight: 600;
+}
+
+/* Fix text colors and backgrounds */
+[data-theme="light"] p, 
+[data-theme="light"] h1, 
+[data-theme="light"] h2, 
+[data-theme="light"] h3, 
+[data-theme="light"] h4, 
+[data-theme="light"] h5, 
+[data-theme="light"] h6, 
+[data-theme="light"] span, 
+[data-theme="light"] div {
+  color: #111827;
+}
+
+/* Fix any dark backgrounds with a fallback */
+[data-theme="light"] [class*="bg-gray-900"],
+[data-theme="light"] [class*="bg-gray-800"],
+[data-theme="light"] [class*="bg-black"] {
+  background-color: white !important;
+}
+
+/* Fix specific dark gradient backgrounds */
+[data-theme="light"] .bg-gradient-to-br.from-gray-900.to-black {
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6) !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Extra insurance for ALL card-like components */
+[data-theme="light"] [class*="card"],
+[data-theme="light"] .rounded-lg,
+[data-theme="light"] .rounded-xl {
+  background-color: white !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Fix all icon colors */
+[data-theme="light"] svg.text-gray-400,
+[data-theme="light"] svg.text-gray-500,
+[data-theme="light"] svg.text-gray-600 {
+  color: #6b7280 !important;
+}
+
+[data-theme="light"] svg.text-white,
+[data-theme="light"] svg.text-gray-300,
+[data-theme="light"] svg.text-gray-200 {
+  color: #111827 !important;
+}
+
+/* Fix any remaining gray UI elements */
+[data-theme="light"] .bg-gray-700,
+[data-theme="light"] .bg-gray-800,
+[data-theme="light"] .bg-gray-900 {
+  background-color: white !important;
+}
+
+/* Fix opacity backgrounds */
+[data-theme="light"] .bg-black\/40,
+[data-theme="light"] .bg-black\/50,
+[data-theme="light"] .bg-black\/60,
+[data-theme="light"] .bg-black\/70 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Ensuring all card backgrounds are white */
+[data-theme="light"] .card-with-header,
+[data-theme="light"] .card-dark-header,
+[data-theme="light"] .dynamic-card {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== FINAL TARGETED FIXES ===== */
+
+/* Fix the chat input field - make text visible when typing */
+[data-theme="light"] input[type="text"].bg-black,
+[data-theme="light"] input.bg-gray-800,
+[data-theme="light"] textarea.bg-gray-800,
+[data-theme="light"] input.bg-dark-card {
+  background-color: white !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Specifically target the chat input field */
+[data-theme="light"] .neural-automotive-assistant input,
+[data-theme="light"] .chat-interface input,
+[data-theme="light"] .message-input {
+  background-color: white !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Fix "hello" text input in chatbot */
+[data-theme="light"] input.bg-black {
+  background-color: white !important;
+  color: #111827 !important; 
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Fix Generate AI Review button */
+[data-theme="light"] button.generate-ai-review,
+[data-theme="light"] [class*="GenerateAIReview"],
+[data-theme="light"] button[class*="Review"] {
+  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Fix all buttons with "Generate" text */
+[data-theme="light"] button[class*="Generate"] {
+  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Car Name in CarDetails */
+[data-theme="light"] .text-2xl.font-bold.text-white,
+[data-theme="light"] .text-3xl.font-bold.text-white,
+[data-theme="light"] h1.text-2xl,
+[data-theme="light"] h1.text-3xl {
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+/* Car Detail Header Section */
+[data-theme="light"] .card-dark-header .header,
+[data-theme="light"] .header {
+  background: linear-gradient(90deg, var(--light-surface), var(--light-card)) !important;
+  border-bottom: 1px solid var(--light-border) !important;
+}
+
+[data-theme="light"] .header h1,
+[data-theme="light"] .header h2,
+[data-theme="light"] .header h3 {
+  color: var(--light-text) !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] .header .text-white,
+[data-theme="light"] .header .text-gray-300,
+[data-theme="light"] .header .text-gray-400 {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .header .bg-gradient-to-r {
+  background: linear-gradient(90deg, var(--light-surface), var(--light-card)) !important;
+}
+
+[data-theme="light"] .header .bg-gradient-to-r span {
+  color: var(--light-text) !important;
+  text-shadow: none !important;
+}
+
+/* Fix 2023 BMW F30 header specifically */
+[data-theme="light"] h1[class*="BMW"],
+[data-theme="light"] h1[class*="F30"],
+[data-theme="light"] .font-bold[class*="2023"] {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+/* Fix Car Details header text */
+[data-theme="light"] .text-2xl.font-bold,
+[data-theme="light"] .text-3xl.font-bold,
+[data-theme="light"] h1.font-bold {
+  color: #111827 !important;
+}
+
+/* Fix ChatInterface text colors */
+[data-theme="light"] .neural-automotive-assistant {
+  color: #111827 !important;
+}
+
+/* Fix "Back to listing" button */
+[data-theme="light"] a[href*="listing"],
+[data-theme="light"] button[class*="Back"] {
+  color: #2563eb !important;
+}
+
+/* Absolutely ensure the chat input has good contrast */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] textarea {
+  background-color: white !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* Force the 2023 BMW F30 text to be visible */
+[data-theme="light"] [class*="2023"][class*="BMW"][class*="F30"],
+[data-theme="light"] [class*="BMW"] h1,
+[data-theme="light"] [class*="BMW"] div,
+[data-theme="light"] [class*="BMW"] span {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+/* Target the BMW F30 header more specifically */
+[data-theme="light"] #car-header h1,
+[data-theme="light"] .car-header h1,
+[data-theme="light"] .text-2xl.font-bold.text-white {
+  color: #111827 !important;
+}
+
+/* Force header on car detail pages */
+[data-theme="light"] .bg-gray-900 {
+  background-color: #f8fafc !important;
+}
+
+/* Guarantee input contrasting colors */
+[data-theme="light"] input {
+  color: #111827 !important;
+  background-color: white !important;
+}
+
+/* Target specifically those buttons */
+[data-theme="light"] button.w-full.bg-white.p-4 {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Chat button fixes */
+[data-theme="light"] .message-bubble.user-message {
+  background: linear-gradient(to right, #8b5cf6, #6366f1) !important;
+  color: white !important;
+}
+
+[data-theme="light"] .message-bubble.ai-message {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+/* Ensure ALL car detail headers are black text */
+[data-theme="light"] .text-white {
+  color: #111827 !important;
+}
+
+/* Target car detail top section specifically */
+[data-theme="light"] [class*="2023"][class*="BMW"][class*="F30"],
+[data-theme="light"] .bmw-f30,
+[data-theme="light"] .car-header-section,
+[data-theme="light"] [class*="CarDetail"] h1 {
+  color: #111827 !important;
+}
+
+/* Car Name Specific Fixes */
+[data-theme="light"] h1[class*="text-2xl"],
+[data-theme="light"] h1[class*="text-3xl"],
+[data-theme="light"] h1[class*="font-bold"] {
+  color: var(--light-text) !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] [class*="2023"][class*="BMW"][class*="F30"],
+[data-theme="light"] [class*="BMW"] h1,
+[data-theme="light"] [class*="F30"] h1 {
+  color: var(--light-text) !important;
+  text-shadow: none !important;
+}
+
+/* Reviews Section Fixes */
+[data-theme="light"] .dynamic-card {
+  background-color: var(--light-surface) !important;
+  border: 1px solid var(--light-border) !important;
+  background-image: none !important;
+}
+
+[data-theme="light"] .dynamic-card:hover {
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .dynamic-card h3 {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .dynamic-card .text-gray-300,
+[data-theme="light"] .dynamic-card .text-gray-400,
+[data-theme="light"] .dynamic-card .text-gray-500 {
+  color: var(--light-text-secondary) !important;
+}
+
+[data-theme="light"] .dynamic-card .review-text {
+  color: var(--light-text) !important;
+}
+
+/* Star Rating Fixes */
+[data-theme="light"] .text-yellow-500,
+[data-theme="light"] .fill-yellow-500 {
+  color: #f59e0b !important;
+  fill: #f59e0b !important;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #d1d5db !important;
+}
+
+/* Review Summary Card Fixes */
+[data-theme="light"] .card-with-header {
+  background-color: var(--light-surface) !important;
+  border: 1px solid var(--light-border) !important;
+  background-image: none !important;
+}
+
+[data-theme="light"] .card-with-header .header {
+  background: linear-gradient(90deg, var(--light-surface), var(--light-card)) !important;
+  border-bottom: 1px solid var(--light-border) !important;
+}
+
+[data-theme="light"] .card-with-header h2 {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .card-with-header .text-3xl {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .card-with-header .text-gray-400 {
+  color: var(--light-text-secondary) !important;
+}
+
+/* Sentiment Bar Fixes */
+[data-theme="light"] .bg-gray-700.rounded-full {
+  background-color: var(--light-border) !important;
+}
+
+[data-theme="light"] .bg-green-500 {
+  background-color: var(--accent-green) !important;
+}
+
+[data-theme="light"] .text-green-500 {
+  color: var(--accent-green) !important;
+}
+
+/* AI Review Generator Fixes */
+[data-theme="light"] .neural-automotive-assistant {
+  background-color: var(--light-surface) !important;
+  border: 1px solid var(--light-border) !important;
+}
+
+[data-theme="light"] .neural-automotive-assistant h2,
+[data-theme="light"] .neural-automotive-assistant h3,
+[data-theme="light"] .neural-automotive-assistant p {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .neural-automotive-assistant .text-gray-400,
+[data-theme="light"] .neural-automotive-assistant .text-gray-500 {
+  color: var(--light-text-secondary) !important;
+}
+
+/* Generate AI Review Button Fixes */
+[data-theme="light"] button[class*="GenerateAIReview"],
+[data-theme="light"] button[class*="Generate"] {
+  background: linear-gradient(to right, var(--accent-violet), var(--accent-blue)) !important;
+  color: white !important;
+  border: none !important;
+}
+
+[data-theme="light"] button[class*="GenerateAIReview"]:hover,
+[data-theme="light"] button[class*="Generate"]:hover {
+  background: linear-gradient(to right, var(--accent-violet-dark), var(--accent-blue-dark)) !important;
+}
+
+/* AI Review Content Fixes */
+[data-theme="light"] .ai-review-content {
+  background-color: var(--light-surface) !important;
+  border: 1px solid var(--light-border) !important;
+}
+
+[data-theme="light"] .ai-review-content h4 {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .ai-review-content .text-green-700 {
+  color: var(--accent-green) !important;
+}
+
+[data-theme="light"] .ai-review-content .text-red-700 {
+  color: var(--accent-red) !important;
+}
+
+/* Pros and Cons List Fixes */
+[data-theme="light"] .pros-list li,
+[data-theme="light"] .cons-list li {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .pros-list li::before {
+  color: var(--accent-green) !important;
+}
+
+[data-theme="light"] .cons-list li::before {
+  color: var(--accent-red) !important;
+}
+
+/* ===== NAVBAR FIXES - CORRECTED ===== */
+[data-theme="light"] nav button {
+  color: var(--light-text);
+}
+
+[data-theme="light"] nav button.active {
+  color: white;
+}
+
+[data-theme="light"] .bg-dark-surface {
+  background-color: var(--light-surface) !important;
+}
+
+[data-theme="light"] .hover\:bg-gray-800:hover {
+  background-color: #cbd5e1 !important;
+  color: var(--light-text) !important;
+}
+
+/* ===== AI REVIEW CONTENT FIXES - CORRECTED ===== */
+[data-theme="light"] .ai-review-content .pros,
+[data-theme="light"] .ai-review-content .cons {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--light-text) !important;
+  border: 2px solid;
+  border-image: linear-gradient(to right, red, green, blue) 1;
+}
+
+[data-theme="light"] .border-black {
+  border-color: transparent !important;
+}
+
+/* ===== CAR LISTING FIXES - CORRECTED ===== */
+[data-theme="light"] .car-listing-container {
+  background-color: var(--light-bg) !important;
+  padding: 1rem;
+}
+
+[data-theme="light"] .car-card {
+  background-color: var(--light-surface) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+}
+
+[data-theme="light"] .car-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-0.125rem);
+}
+
+[data-theme="light"] .car-details {
+  color: var(--light-text-secondary) !important;
+}
+
+/* ===== TEXT COLOR OVERRIDES ===== */
+[data-theme="light"] .text-gray-300 {
+  color: var(--light-text-secondary) !important;
+}
+
+[data-theme="light"] .text-gray-700,
+[data-theme="light"] .text-gray-800,
+[data-theme="light"] .text-gray-900 {
+  color: var(--light-text) !important;
+}
+
+/* ===== BACKGROUND COLOR OVERRIDES ===== */
+[data-theme="light"] .bg-gray-50,
+[data-theme="light"] .bg-gray-100 {
+  background-color: var(--light-bg) !important;
+}
+
+[data-theme="light"] .bg-white {
+  background-color: var(--light-surface) !important;
+}
+
+[data-theme="light"] .bg-gray-200,
+[data-theme="light"] .bg-gray-300,
+[data-theme="light"] .bg-gray-400,
+[data-theme="light"] .bg-gray-500,
+[data-theme="light"] .bg-gray-600,
+[data-theme="light"] .bg-gray-700,
+[data-theme="light"] .bg-gray-800,
+[data-theme="light"] .bg-gray-900,
+[data-theme="light"] .bg-black {
+  background-color: var(--light-card) !important;
+}
+
+/* ===== PREMIUM VEHICLE PRODUCTS FIXES ===== */
+[data-theme="light"] .premium-products-title {
+  color: var(--light-text);
+}
+
+[data-theme="light"] .premium-products h2 {
+  color: var(--light-text) !important;
+}
+
+/* ===== PROS AND CONS SECTION FIXES ===== */
+[data-theme="light"] .pros-container,
+[data-theme="light"] .cons-container {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid;
+  border-image: linear-gradient(to right, red, green, blue) 1;
+}
+
+[data-theme="light"] .pros-container h3,
+[data-theme="light"] .cons-container h3 {
+  color: var(--light-text) !important;
+}
+
+[data-theme="light"] .pros-container ul li,
+[data-theme="light"] .cons-container ul li {
+  color: var(--light-text-secondary) !important;
+}
+
+[data-theme="light"] .border-black {
+  border-color: transparent !important;
 }
 
