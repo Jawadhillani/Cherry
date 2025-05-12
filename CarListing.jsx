@@ -1,6 +1,30 @@
-'use client'
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { Star, AlertCircle, Database, Search, Filter, Car as CarIcon, RefreshCw, Fuel, Gauge, Calendar, Zap, Award } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+import {
+  Database, AlertCircle, Search, Filter,
+  RefreshCw, Fuel, Gauge, Calendar, Sliders, ChevronRight,
+  ChevronDown, BarChart3, ListFilter, LayoutGrid, List, X,
+  Info, ArrowUpDown, Check, Heart, Star, Settings, Eye
+} from 'lucide-react';
+import CarImage from './CarImage';  // Import our new CarImage component
+
+// Initialize the Supabase client once
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Utility function to preload car images
+function preloadCarImages(cars) {
+    if (!cars || !Array.isArray(cars)) return;
+    cars.forEach(car => {
+        if (car.image_url) {
+            const img = new Image();
+            img.src = car.image_url;
+        }
+    });
+}
 
 export default function CarListing({ onSelectCar }) {
   const [cars, setCars] = useState([]);
@@ -13,432 +37,594 @@ export default function CarListing({ onSelectCar }) {
     usingFallback: false,
     message: ''
   });
-  const [view, setView] = useState('grid'); // 'grid' or 'list'
+  const [view, setView] = useState('grid');
   const [highlightedCard, setHighlightedCard] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortField, setSortField] = useState('year');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [yearRange, setYearRange] = useState([2000, 2023]);
+  const [selectedBodyTypes, setSelectedBodyTypes] = useState([]);
+  const [hoveredCar, setHoveredCar] = useState(null);
+  const [error, setError] = useState(null);
 
-  // First check database status
+  const bodyTypes = ['Sedan', 'SUV', 'Pickup', 'Coupe', 'Hatchback', 'Convertible', 'Wagon'];
+
   useEffect(() => {
     async function checkDatabaseStatus() {
       try {
-        const response = await fetch('/api/test-db');
-        const data = await response.json();
-        
-        setDbStatus({
-          checked: true,
-          usingFallback: data.using_fallback || false,
-          message: data.message || ''
-        });
-        
-        console.log("Database status:", data);
+        console.log("Checking Supabase connection...");
+        const { data, error } = await supabase
+          .from('cars')
+          .select('count')
+          .single();
+         
+        if (error) {
+          console.error("Supabase connection error:", error);
+          setDbStatus({
+            checked: true,
+            usingFallback: true,
+            message: 'Database connection issue'
+          });
+        } else {
+          console.log("Supabase connection successful");
+          setDbStatus({
+            checked: true,
+            usingFallback: false,
+            message: 'Database connection successful'
+          });
+        }
       } catch (err) {
-        console.error("Failed to check database status:", err);
+        console.error('Failed to check database status:', err);
         setDbStatus({
           checked: true,
           usingFallback: true,
           message: 'Unable to check database status'
         });
+      } finally {
+        setTimeout(() => setLoading(false), 800);
       }
     }
-    
+
     checkDatabaseStatus();
   }, []);
 
-  // Fetch manufacturers for filter dropdown
   useEffect(() => {
     async function fetchManufacturers() {
       try {
-        // Use the API endpoint for manufacturers
-        // If your API doesn't have a specific manufacturers endpoint, extract them from cars
-        const response = await fetch('/api/cars');
+        console.log('Fetching manufacturers...');
         
-        if (!response.ok) {
-          console.error("Failed to fetch cars for manufacturers:", response.status);
-          return;
-        }
+        const { data, error } = await supabase
+          .from('cars')
+          .select('manufacturer')
+          .order('manufacturer');
+         
+        if (error) throw error;
         
-        const carsData = await response.json();
+        const uniqueManufacturers = [...new Set(
+          data.map(item => item.manufacturer).filter(Boolean)
+        )];
         
-        if (Array.isArray(carsData) && carsData.length > 0) {
-          // Extract unique manufacturers from the cars data
-          const uniqueManufacturers = [...new Set(
-            carsData
-              .map(car => car.manufacturer)
-              .filter(Boolean) // Remove null/undefined values
-          )];
-          
-          setManufacturers(uniqueManufacturers);
-          console.log("Extracted manufacturers:", uniqueManufacturers);
-        }
+        console.log('Extracted manufacturers:', uniqueManufacturers);
+        setManufacturers(uniqueManufacturers);
       } catch (error) {
-        console.error("Error fetching manufacturers:", error);
-        // Just continue without manufacturers filter
+        console.error('Error fetching manufacturers:', error);
       }
     }
-    
+
     fetchManufacturers();
   }, []);
 
-  // Fetch cars
   useEffect(() => {
     async function fetchCars() {
+      if (!dbStatus.checked) {
+        console.log('Waiting for database status check...');
+        return;
+      }
+
       setLoading(true);
-      
+      setError(null);
+
       try {
-        // Always use the API to get cars
-        let url = '/api/cars';
+        let query = supabase.from('cars').select('*');
         
-        // Add query parameters for filtering
-        const params = new URLSearchParams();
-        if (selectedManufacturer) params.set('manufacturer', selectedManufacturer);
-        if (searchTerm) params.set('query', searchTerm);
-        
-        if (params.toString()) url += `?${params.toString()}`;
-        
-        console.log("Fetching cars from:", url);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch cars: ${response.status}`);
+        if (selectedManufacturer) {
+          query = query.eq('manufacturer', selectedManufacturer);
         }
         
-        const data = await response.json();
-        console.log("Fetched cars:", data);
-        setCars(data || []);
-      } catch (err) {
-        console.error('Error fetching cars:', err);
+        if (searchTerm) {
+          query = query.or(`manufacturer.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`);
+        }
+
+        query = query.gte('year', yearRange[0]).lte('year', yearRange[1]);
+
+        if (selectedBodyTypes.length > 0) {
+          query = query.in('body_type', selectedBodyTypes);
+        }
+
+        if (sortField) {
+          query = query.order(sortField, { ascending: sortDirection === 'asc' });
+        }
+        
+        const { data, error } = await query.limit(50);
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          preloadCarImages(data);
+          setCars(data);
+        } else {
+          setCars([]);
+          console.error('No cars data returned');
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        setError(`Failed to load cars: ${error.message}`);
         setCars([]);
       } finally {
         setLoading(false);
       }
     }
-    
-    // Only fetch cars after we know the database status
-    if (dbStatus.checked) {
-      fetchCars();
-    }
-  }, [searchTerm, selectedManufacturer, dbStatus.checked]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+    fetchCars();
+  }, [dbStatus.checked, searchTerm, selectedManufacturer, sortField, sortDirection, yearRange, selectedBodyTypes]);
 
-  const handleManufacturerChange = (e) => {
-    setSelectedManufacturer(e.target.value);
-  };
-  
-  // Function to get gradient colors based on manufacturer
-  const getGradient = (manufacturer = '') => {
-    manufacturer = manufacturer.toLowerCase();
-    
-    if (manufacturer.includes('tesla')) {
-      return 'from-red-800 to-violet-900';
-    } else if (manufacturer.includes('bmw') || manufacturer.includes('mercedes')) {
-      return 'from-blue-800 to-violet-900';
-    } else if (manufacturer.includes('toyota') || manufacturer.includes('honda')) {
-      return 'from-green-800 to-indigo-900';
-    } else if (manufacturer.includes('ford')) {
-      return 'from-indigo-800 to-blue-900';
+  const handleSearch = (e) => setSearchTerm(e.target.value);
+  const handleManufacturerChange = (e) => setSelectedManufacturer(e.target.value);
+  const handleBodyTypeToggle = (type) => setSelectedBodyTypes(prev =>
+    prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+  );
+
+  const handleSortChange = (field) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
-      return 'from-violet-800 to-indigo-900'; // Default
+      setSortField(field);
+      setSortDirection('desc');
     }
   };
 
-  // Preferred order for models
-  const preferredOrder = [
-    "Shelby",
-    "Expedition",
-    "Kona",
-    "Mustang",
-    "Tucson",
-    "Challenger",
-    "Accent",
-    "Explorer",
-    "Elantra"
-  ];
-
-  // Sort cars so preferred models appear first
-  const sortedCars = [...cars].sort((a, b) => {
-    const aIndex = preferredOrder.indexOf(a.model);
-    const bIndex = preferredOrder.indexOf(b.model);
-    if (aIndex === -1 && bIndex === -1) return 0;
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
-
-  // Car card component for grid view with hover effect
-  const CarCard = ({ car, index }) => {
-    const isHighlighted = highlightedCard === car.id;
-    const gradient = getGradient(car.manufacturer);
-    
-    return (
-      <div
-        className={`dynamic-card cursor-pointer ${isHighlighted ? 'border-violet-500 shadow-lg shadow-violet-500/20' : ''}`}
-        onClick={() => {
-          if (onSelectCar) onSelectCar(car);
-        }}
-        onMouseEnter={() => setHighlightedCard(car.id)}
-        onMouseLeave={() => setHighlightedCard(null)}
-        style={{
-          animationDelay: `${index * 0.05}s`
-        }}
-      >
-        <div className={`h-40 bg-gradient-to-r ${gradient} flex items-center justify-center p-4`}>
-          <CarIcon className="h-20 w-20 text-white animated-icon" />
-        </div>
-        <div className="p-4">
-          <h3 className="font-bold text-lg">
-            {car.manufacturer} {car.model}
-          </h3>
-          <p className={`text-violet-400 font-medium ${isHighlighted ? 'gradient-text' : ''}`}>{car.year}</p>
-          
-          {/* Car details */}
-          <div className="mt-4 space-y-2">
-            {car.engine_info && (
-              <div className="flex items-center text-gray-400">
-                <Fuel className={`h-4 w-4 mr-2 ${isHighlighted ? 'text-violet-400' : ''}`} />
-                <span className="text-sm">{car.engine_info}</span>
-              </div>
-            )}
-            
-            {car.mpg && (
-              <div className="flex items-center text-gray-400">
-                <Gauge className={`h-4 w-4 mr-2 ${isHighlighted ? 'text-violet-400' : ''}`} />
-                <span className="text-sm">{car.mpg} MPG</span>
-              </div>
-            )}
-            
-            {car.body_type && (
-              <div className="flex items-center text-gray-400">
-                <CarIcon className={`h-4 w-4 mr-2 ${isHighlighted ? 'text-violet-400' : ''}`} />
-                <span className="text-sm">{car.body_type}</span>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Tags */}
-        <div className="px-4 pb-4">
-          <div className="flex flex-wrap gap-2 mt-3">
-            {car.body_type && (
-              <span className={`inline-block ${isHighlighted ? 'badge-gradient' : 'bg-blue-900 text-blue-200'} text-xs px-2 py-1 rounded`}>
-                {car.body_type}
-              </span>
-            )}
-            
-            {car.fuel_type && (
-              <span className="inline-block bg-green-900 text-green-200 text-xs px-2 py-1 rounded">
-                {car.fuel_type}
-              </span>
-            )}
-            
-            <span className={`inline-block ${isHighlighted ? 'bg-violet-900 text-violet-200' : 'bg-gray-800 text-gray-300'} text-xs px-2 py-1 rounded`}>
-              ID: {car.id}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
+  const getCarStyle = (manufacturer) => {
+    const styles = {
+      'BMW':   { bg: 'from-blue-600 to-violet-900', accent: 'text-blue-400' },
+      'Dodge': { bg: 'from-red-600 to-violet-900',  accent: 'text-red-400' }
+    };
+    return styles[manufacturer] || { bg: 'from-violet-600 to-indigo-900', accent: 'text-violet-400' };
   };
 
-  // Car row component for list view
-  const CarRow = ({ car }) => {
-    const isHighlighted = highlightedCard === car.id;
-    const gradient = getGradient(car.manufacturer);
-    
+  const renderStars = (manufacturer) => {
+    const ratings = { 'BMW': 4.7, 'Dodge': 4.2 };
+    const rating  = ratings[manufacturer] || 4.0;
+
     return (
-      <div
-        className={`dynamic-card cursor-pointer p-4 flex flex-wrap md:flex-nowrap gap-4 items-center ${isHighlighted ? 'border-violet-500' : ''}`}
-        onClick={() => {
-          if (onSelectCar) onSelectCar(car);
-        }}
-        onMouseEnter={() => setHighlightedCard(car.id)}
-        onMouseLeave={() => setHighlightedCard(null)}
-      >
-        <div className={`bg-gradient-to-r ${gradient} h-16 w-16 md:h-20 md:w-20 rounded-full flex items-center justify-center flex-shrink-0`}>
-          <CarIcon className="h-8 w-8 text-white animated-icon" />
-        </div>
-        
-        <div className="flex-grow min-w-0">
-          <h3 className="font-bold text-lg truncate">
-            {car.manufacturer} {car.model}
-          </h3>
-          <div className="flex items-center mt-1">
-            <Calendar className={`h-4 w-4 mr-1 ${isHighlighted ? 'text-violet-400' : 'text-gray-400'}`} />
-            <span className={`font-medium ${isHighlighted ? 'text-violet-400' : 'text-blue-400'}`}>{car.year}</span>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2 flex-shrink-0 w-full md:w-auto">
-          {car.engine_info && (
-            <div className="flex items-center text-gray-400 col-span-2 md:col-span-1">
-              <Fuel className={`h-4 w-4 mr-2 flex-shrink-0 ${isHighlighted ? 'text-violet-400' : ''}`} />
-              <span className="text-sm truncate">{car.engine_info}</span>
-            </div>
-          )}
-          
-          {car.mpg && (
-            <div className="flex items-center text-gray-400">
-              <Gauge className={`h-4 w-4 mr-2 flex-shrink-0 ${isHighlighted ? 'text-violet-400' : ''}`} />
-              <span className="text-sm">{car.mpg} MPG</span>
-            </div>
-          )}
-          
-          {car.body_type && (
-            <div className="flex items-center text-gray-400">
-              <CarIcon className={`h-4 w-4 mr-2 flex-shrink-0 ${isHighlighted ? 'text-violet-400' : ''}`} />
-              <span className="text-sm">{car.body_type}</span>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex flex-wrap gap-2 justify-end flex-shrink-0 w-full md:w-auto">
-          {car.fuel_type && (
-            <span className={`inline-block ${isHighlighted ? 'badge-gradient' : 'bg-green-900 text-green-200'} text-xs px-2 py-1 rounded`}>
-              {car.fuel_type}
-            </span>
-          )}
-          
-          <span className="inline-block bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded">
-            ID: {car.id}
-          </span>
-        </div>
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star 
+            key={star}
+            fill={star <= Math.floor(rating) ? "#9333EA" : "none"}
+            stroke={star <= Math.floor(rating) ? "#9333EA" : "#6B7280"}
+            className="w-3 h-3" 
+          />
+        ))}
+        <span className="ml-1 text-xs font-medium text-gray-300">{rating.toFixed(1)}</span>
       </div>
     );
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto page-transition">
-      <div className="card-with-header mb-6">
-        <div className="header bg-gradient-to-r from-violet-900 to-indigo-900">
-          <h2 className="text-2xl font-bold flex items-center">
-            <Award className="w-6 h-6 mr-2" /> Available Cars
-          </h2>
-        </div>
+    <div className="text-white">
+      {/* Page header with gradient background */}
+      <div className="relative mb-8 rounded-xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-900/80 to-black"></div>
         
-        <div className="content">
-          {/* Database Status Alert */}
-          {dbStatus.usingFallback && (
-            <div className="alert-warning p-4 rounded-lg mb-6 flex items-center">
-              <Database className="w-5 h-5 mr-3" />
-              <div>
-                <p className="font-medium">Using Fallback Database</p>
-                <p className="text-sm">
-                  Only sample car data is available. Some features may be limited.
-                </p>
+        {/* Diagonal pattern overlay */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            backgroundImage: `linear-gradient(135deg, rgba(124, 58, 237, 0.2) 25%, transparent 25%, transparent 50%, rgba(124, 58, 237, 0.2) 50%, rgba(124, 58, 237, 0.2) 75%, transparent 75%, transparent)`,
+            backgroundSize: '20px 20px',
+            opacity: 0.3
+          }}
+        ></div>
+        
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
+                <Database className="mr-3 h-6 w-6 text-violet-400" /> Premium Vehicle Products
+              </h1>
+              <p className="text-gray-300 max-w-2xl">
+                Explore our comprehensive collection of vehicles with detailed specifications and performance metrics
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => setView('grid')} 
+                className={`p-2 rounded-lg ${view === 'grid' 
+                  ? 'bg-violet-600 text-white' 
+                  : 'bg-black/40 text-gray-300 border border-gray-800 hover:border-violet-500/50'}`}
+                title="Grid View"
+              >
+                <LayoutGrid className="h-5 w-5" />
+              </button>
+              <button 
+                onClick={() => setView('list')} 
+                className={`p-2 rounded-lg ${view === 'list' 
+                  ? 'bg-violet-600 text-white' 
+                  : 'bg-black/40 text-gray-300 border border-gray-800 hover:border-violet-500/50'}`}
+                title="List View"
+              >
+                <List className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search & basic filters */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        {/* Search box */}
+        <div className="relative flex-grow">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-500" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by manufacturer, model, or specs..."
+            className="block w-full pl-12 pr-4 py-3 bg-black/40 border border-gray-800 focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500 rounded-lg text-white placeholder-gray-500"
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+        </div>
+
+        {/* Manufacturer filter */}
+        {manufacturers.length > 0 && (
+          <div className="relative min-w-[200px]">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Filter className="h-5 w-5 text-gray-500" />
+            </div>
+            <select
+              className="appearance-none block w-full pl-12 pr-10 py-3 bg-black/40 border border-gray-800 focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500 rounded-lg text-white"
+              value={selectedManufacturer}
+              onChange={handleManufacturerChange}
+            >
+              <option value="">All Manufacturers</option>
+              {manufacturers.map((manu) => (
+                <option key={manu} value={manu} className="bg-gray-900">{manu}</option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronDown className="h-5 w-5 text-gray-500" />
+            </div>
+          </div>
+        )}
+
+        {/* Advanced filters button */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white px-5 py-3 rounded-lg font-medium flex items-center transition-all shadow-lg"
+        >
+          <Sliders className="h-5 w-5 mr-2" /> 
+          {showFilters ? 'Hide Filters' : 'Advanced Filters'}
+        </button>
+      </div>
+
+      {/* Advanced filters panel */}
+      {showFilters && (
+        <div className="mb-8 bg-black/60 border border-gray-800 rounded-xl p-6">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-xl font-medium text-white flex items-center">
+              <ListFilter className="w-5 h-5 mr-2 text-violet-400" /> Advanced Filters
+            </h2>
+            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Sort options */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-300 mb-4">Sort By</h3>
+              {[
+                { field: 'year',         icon: Calendar, label: 'Year' }, 
+                { field: 'manufacturer', icon: Database, label: 'Manufacturer' }, 
+                { field: 'mpg',          icon: Gauge,    label: 'Fuel Economy' }
+              ].map(({ field, icon: Icon, label }) => (
+                <button
+                  key={field}
+                  onClick={() => handleSortChange(field)}
+                  className={`w-full flex justify-between items-center px-4 py-3 rounded-lg mb-2 border ${
+                    sortField === field 
+                      ? 'border-violet-500 bg-violet-900/20' 
+                      : 'border-gray-800 bg-black/40 hover:border-violet-500/50'
+                  } transition-colors`}
+                >
+                  <span className="flex items-center text-white">
+                    <Icon className="w-4 h-4 mr-2 text-violet-400" />{label}
+                  </span>
+                  {sortField === field && (
+                    <ArrowUpDown className={`w-4 h-4 text-violet-400 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Year range filter */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-300 mb-4">Year Range</h3>
+              <div className="flex space-x-4">
+                <div className="w-full">
+                  <label className="text-xs text-gray-500 mb-1 block">From</label>
+                  <input 
+                    type="number" 
+                    className="w-full px-4 py-3 bg-black/40 border border-gray-800 focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500 rounded-lg text-white" 
+                    value={yearRange[0]} 
+                    onChange={e => setYearRange([parseInt(e.target.value) || 1990, yearRange[1]])} 
+                  />
+                </div>
+                <div className="w-full">
+                  <label className="text-xs text-gray-500 mb-1 block">To</label>
+                  <input 
+                    type="number" 
+                    className="w-full px-4 py-3 bg-black/40 border border-gray-800 focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500 rounded-lg text-white" 
+                    value={yearRange[1]} 
+                    onChange={e => setYearRange([yearRange[0], parseInt(e.target.value) || 2025])} 
+                  />
+                </div>
               </div>
             </div>
-          )}
-          
-          {/* Search and Filter Controls */}
-          <div className="mb-6">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-grow relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search cars..."
-                  className="w-full p-2 pl-10 bg-dark-card border border-dark-border rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-              </div>
-              
-              {manufacturers.length > 0 && (
-                <div className="w-full md:w-auto relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Filter className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <select
-                    className="w-full md:w-64 p-2 pl-10 bg-dark-card border border-dark-border rounded-md appearance-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    value={selectedManufacturer}
-                    onChange={handleManufacturerChange}
-                  >
-                    <option value="">All Manufacturers</option>
-                    {manufacturers.map((manufacturer) => (
-                      <option key={manufacturer} value={manufacturer}>
-                        {manufacturer}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              
-              {/* View toggle buttons with gradient border */}
-              <div className="flex border border-violet-500 rounded-md overflow-hidden bg-dark-card">
-                <button
-                  className={`flex items-center px-3 py-2 ${view === 'grid' ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white' : 'text-gray-300'}`}
-                  onClick={() => setView('grid')}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button
-                  className={`flex items-center px-3 py-2 ${view === 'list' ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white' : 'text-gray-300'}`}
-                  onClick={() => setView('list')}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
+
+            {/* Body type filter */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-300 mb-4">Body Type</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {bodyTypes.map(type => (
+                  <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                    <div className={`w-5 h-5 flex items-center justify-center rounded border ${
+                      selectedBodyTypes.includes(type) 
+                        ? 'bg-violet-600 border-violet-500' 
+                        : 'border-gray-700 bg-black/40'
+                    }`}>
+                      {selectedBodyTypes.includes(type) && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className="text-gray-300 text-sm">{type}</span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
-
-          {/* Car Listing Results */}
-          {loading ? (
-            <div className="text-center p-12">
-              <div className="w-12 h-12 border-t-4 border-violet-500 border-solid rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-300">Loading vehicles...</p>
-            </div>
-          ) : cars.length === 0 ? (
-            <div className="p-12 rounded-lg text-center border border-dark-border bg-dark-card">
-              <CarIcon className="h-16 w-16 text-gray-700 mx-auto mb-4" />
-              <h3 className="text-xl font-medium mb-2">No cars found</h3>
-              <p className="text-gray-400 mb-6">No vehicles match your current search criteria.</p>
-              {dbStatus.usingFallback && (
-                <p className="text-sm text-yellow-500 mt-2">
-                  Note: You're viewing limited sample data from the fallback database.
-                </p>
-              )}
-              <button 
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedManufacturer('');
-                }}
-                className="btn-primary"
-              >
-                Clear filters
-              </button>
-            </div>
-          ) : (
-            <>
-              <p className="text-gray-300 mb-4">
-                Found {cars.length} vehicle{cars.length !== 1 ? 's' : ''}
-                {selectedManufacturer ? ` from ${selectedManufacturer}` : ''}
-                {searchTerm ? ` matching "${searchTerm}"` : ''}
-              </p>
-              
-              {view === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedCars.map((car, index) => (
-                    <CarCard key={car.id} car={car} index={index} />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {sortedCars.map((car, index) => (
-                    <CarRow key={car.id} car={car} />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
         </div>
-      </div>
+      )}
+
+      {/* Database status message */}
+      {dbStatus.usingFallback && (
+        <div className="alert-warning p-4 rounded-lg mb-4 flex items-center">
+          <Database className="w-5 h-5 mr-2 text-amber-400" />
+          <p className="text-amber-400">{dbStatus.message || "Using fallback database with sample data"}</p>
+        </div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <div className="alert-error p-4 rounded-lg mb-4 flex items-center">
+          <AlertCircle className="w-5 h-5 mr-2 text-red-400" />
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading ? (
+        <div className="text-center py-16">
+          <div className="w-12 h-12 border-t-2 border-r-2 border-violet-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading vehicles...</p>
+        </div>
+      ) : cars.length === 0 ? (
+        <div className="text-center p-12 bg-black/40 border border-gray-800 rounded-xl">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-violet-900/20 border border-violet-500/20 mb-4">
+            <Database className="w-8 h-8 text-violet-500" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">No vehicles found</h2>
+          <p className="text-gray-400 mb-6">Try adjusting your search criteria</p>
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedManufacturer('');
+              setSelectedBodyTypes([]);
+              setYearRange([2000, 2023]);
+            }}
+            className="bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+          >
+            Reset Filters
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Results count */}
+          <div className="mb-6 text-sm text-gray-400">
+            Found {cars.length} vehicles matching your criteria
+          </div>
+          
+          {/* Grid view */}
+          {view === 'grid' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {cars.map((car, index) => (
+                <div
+                  key={car.id}
+                  className="relative group cursor-pointer car-entry-staggered"
+                  style={{ '--car-index': index }}
+                  onMouseEnter={() => setHoveredCar(car.id)}
+                  onMouseLeave={() => setHoveredCar(null)}
+                  onClick={() => onSelectCar?.(car)}
+                >
+                  {/* Animated border */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
+                  
+                  {/* Car card */}
+                  <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 group-hover:border-transparent rounded-xl overflow-hidden transition-all duration-300">
+                    {/* Car image area with gradient */}
+                    <div className={`h-48 relative overflow-hidden bg-gradient-to-br ${getCarStyle(car.manufacturer).bg}`}>
+                      {/* Manufacturer tag */}
+                      <div className="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-white">
+                        {car.manufacturer}
+                      </div>
+                      
+                      {/* Favorite button */}
+                      <button className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
+                        <Heart className="w-4 h-4 text-white/70 hover:text-red-400" />
+                      </button>
+                      
+                      {/* Car image */}
+                      <CarImage 
+                        car={car} 
+                        view={hoveredCar === car.id ? 'detailed' : 'card'} 
+                        className="w-full h-full"
+                      />
+                      
+                      {/* Year badge */}
+                      <div className="absolute bottom-3 right-3 z-10 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-white">
+                        {car.year}
+                      </div>
+                    </div>
+                    
+                    {/* Car details */}
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-bold text-white text-lg">{car.model}</h3>
+                        <span className="text-xs text-gray-500">ID: {car.id}</span>
+                      </div>
+                      
+                      {/* Specs */}
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-3">
+                        {car.engine_info && (
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Settings className="w-3 h-3 mr-1 text-violet-400" /> {car.engine_info}
+                          </div>
+                        )}
+                        {car.transmission && (
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Settings className="w-3 h-3 mr-1 text-violet-400" /> {car.transmission}
+                          </div>
+                        )}
+                        {car.body_type && (
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Settings className="w-3 h-3 mr-1 text-violet-400" /> {car.body_type}
+                          </div>
+                        )}
+                        {car.mpg && (
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Fuel className="w-3 h-3 mr-1 text-violet-400" /> {car.mpg} MPG
+                          </div>
+                        )}
+                        {car.fuel_type && (
+                          <div className="flex items-center text-xs text-gray-400">
+                            <Fuel className="w-3 h-3 mr-1 text-violet-400" /> {car.fuel_type}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Rating and view button */}
+                      <div className="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center">
+                        <div>{renderStars(car.manufacturer)}</div>
+                        <button className="text-xs font-medium bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded flex items-center transition-colors opacity-0 group-hover:opacity-100">
+                          <Eye className="w-3 h-3 mr-1" /> View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {/* List view */}
+          {view === 'list' && (
+            <div className="space-y-3">
+              {cars.map((car, index) => (
+                <div
+                  key={car.id}
+                  className="relative group cursor-pointer car-entry-staggered"
+                  style={{ '--car-index': index }}
+                  onMouseEnter={() => setHoveredCar(car.id)}
+                  onMouseLeave={() => setHoveredCar(null)}
+                  onClick={() => onSelectCar?.(car)}
+                >
+                  {/* Animated border */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
+                  
+                  <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 group-hover:border-transparent rounded-lg overflow-hidden transition-all duration-300">
+                    <div className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4">
+                      {/* Left: Car image */}
+                      <div className="md:w-1/4 flex items-center">
+                        <div className="h-16 w-16 mr-3">
+                          <CarImage 
+                            car={car} 
+                            view="card" 
+                            size="sm"
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-white">{car.manufacturer} {car.model}</h3>
+                          <p className="text-sm text-gray-400">{car.year} • ID: {car.id}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Middle: Specs */}
+                      <div className="md:w-2/4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {car.engine_info && (
+                          <div className="flex items-center text-sm text-gray-300">
+                            <Settings className="w-4 h-4 mr-1 text-violet-400" /> {car.engine_info}
+                          </div>
+                        )}
+                        {car.body_type && (
+                          <div className="flex items-center text-sm text-gray-300">
+                            <Settings className="w-4 h-4 mr-1 text-violet-400" /> {car.body_type}
+                          </div>
+                        )}
+                        {car.mpg && (
+                          <div className="flex items-center text-sm text-gray-300">
+                            <Fuel className="w-4 h-4 mr-1 text-violet-400" /> {car.mpg} MPG
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Right: Actions */}
+                      <div className="md:w-1/4 flex justify-end items-center space-x-3 w-full md:w-auto">
+                        <div>{renderStars(car.manufacturer)}</div>
+                        <button className="text-xs font-medium bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded flex items-center transition-colors">
+                          <Eye className="w-3 h-3 mr-1" /> Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      
+      {/* Add animation styles */}
+      <style jsx>{`
+        @keyframes carEntry {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .car-entry-staggered {
+          opacity: 0;
+          animation: carEntry 0.5s ease-out forwards;
+          animation-delay: calc(var(--car-index, 0) * 0.1s);
+        }
+      `}</style>
     </div>
   );
-}
+} 
