@@ -13,6 +13,7 @@ import json
 from datetime import datetime
 from fastapi import FastAPI
 from app.enhanced_chat_controller_hybrid import router as chat_router
+from backend.app.car_recommendation import router as car_recommendation_router
 
 # Load environment variables early
 load_dotenv()
@@ -36,8 +37,8 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Include routers
-# Ensure prefix is applied correctly if needed, usually only once
 app.include_router(chat_router, prefix="/api/chat")
+app.include_router(car_recommendation_router, prefix="/api")
 # If your frontend is *only* calling /api/chat/*, you might not need the line below.
 # If your frontend calls /chat/* directly, keep it. Based on your proxy errors,
 # frontend seems to expect /api/*, so prefix=/api/chat seems appropriate.
@@ -215,22 +216,4 @@ async def api_generate_review(request: GenerateReviewRequest):
 @app.get("/api/test-db")
 def test_db():
     """Test database connection."""
-    # This endpoint might still be hit by something if you see proxy errors for it.
-    # Ensure is_using_fallback correctly checks the Supabase connection status.
-    logger.info("API: Received request for /api/test-db")
-    fallback = is_using_fallback()
-
-    if fallback:
-        logger.info("API: /api/test-db returning fallback status")
-        return {
-            "message": "Using fallback database with sample data",
-            "using_fallback": True,
-            "status": "warning"
-        }
-
-    logger.info("API: /api/test-db returning success status")
-    return {
-        "message": "Database connection successful",
-        "using_fallback": False,
-        "status": "success"
-    }
+    return {"status": "connected", "using_fallback": is_using_fallback()}

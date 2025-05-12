@@ -1,20 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {
-  ChevronRight,
-  Car,
-  ArrowRight,
-  ThumbsUp,
-  MessageSquare,
-  ArrowLeft,
-  X,
-  Zap,
-  Gauge,
-  DollarSign,
-  Users,
-  Droplet,
-  AlertCircle
-} from 'lucide-react';
+import { ChevronRight, Car, ArrowRight, ThumbsUp, ArrowLeft, X, AlertCircle } from 'lucide-react';
 
 /**
  * Car Recommendation Wizard Component using OpenAI API
@@ -22,11 +8,7 @@ import {
  * This version sends user preferences directly to OpenAI to get intelligent
  * car recommendations with accurate matches to preferences.
  */
-const CarRecommendationWizard = ({
-  onClose,
-  onComplete,
-  availableCars = []
-}) => {
+const CarRecommendationWizard = ({ onClose, onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleting, setIsCompleting] = useState(false);
@@ -34,206 +16,6 @@ const CarRecommendationWizard = ({
   const [animation, setAnimation] = useState('slide-in');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [allCarsForRecommendation, setAllCarsForRecommendation] = useState([]);
-
-  // Initialize when component mounts
-  useEffect(() => {
-    // Debug what cars are actually available
-    debugAvailableCars();
-    
-    // Prepare all cars for recommendation - supplement if needed
-    prepareRecommendationData();
-  }, [availableCars]);
-
-  // Debug function to identify the issue
-  const debugAvailableCars = () => {
-    console.log("=== DEBUGGING CAR RECOMMENDATION ISSUE ===");
-    console.log(`Total cars available from database: ${availableCars?.length || 0}`);
-    
-    if (!availableCars || availableCars.length === 0) {
-      console.error("No cars available in database!");
-      return;
-    }
-    
-    // Count manufacturers
-    const manufacturers = {};
-    let missingManufacturerCount = 0;
-    
-    availableCars.forEach(car => {
-      // Check if manufacturer exists
-      if (!car.manufacturer) {
-        missingManufacturerCount++;
-        console.log("Car missing manufacturer:", car);
-        return;
-      }
-      
-      const mfr = car.manufacturer.toLowerCase();
-      manufacturers[mfr] = (manufacturers[mfr] || 0) + 1;
-    });
-    
-    console.log("Manufacturer distribution in database:", manufacturers);
-    
-    if (missingManufacturerCount > 0) {
-      console.error(`${missingManufacturerCount} cars are missing manufacturer information!`);
-    }
-    
-    // Check if all cars are from one manufacturer
-    const uniqueManufacturers = Object.keys(manufacturers);
-    if (uniqueManufacturers.length === 1) {
-      console.error(`ALL cars are ${uniqueManufacturers[0]} - adding supplementary cars for diversity`);
-    }
-  };
-
-  // Prepare recommendation data by merging database cars with supplementary cars if needed
-  const prepareRecommendationData = () => {
-    // Get cars from the database
-    const dbCars = availableCars.map(car => ({
-      ...car,
-      source: 'database',
-      // Ensure consistent property names
-      manufacturer: car.manufacturer || '',
-      model: car.model || '',
-      year: car.year || 2023,
-      body_type: car.body_type || '',
-      fuel_type: car.fuel_type || '',
-      engine_info: car.engine_info || '',
-      transmission: car.transmission || '',
-      price: car.price || 0
-    }));
-    
-    // Count unique manufacturers in database
-    const manufacturers = {};
-    dbCars.forEach(car => {
-      if (car.manufacturer) {
-        const mfr = car.manufacturer.toLowerCase();
-        manufacturers[mfr] = (manufacturers[mfr] || 0) + 1;
-      }
-    });
-    
-    const uniqueManufacturers = Object.keys(manufacturers);
-    const needsDiversification = uniqueManufacturers.length <= 1;
-    
-    if (needsDiversification) {
-      console.log("Database lacks manufacturer diversity - adding supplementary cars");
-      
-      // Add supplementary cars
-      const supplementaryCars = getSupplementaryCars();
-      
-      // Always include supplementary cars when database lacks diversity
-      const allCars = [...dbCars, ...supplementaryCars];
-      setAllCarsForRecommendation(allCars);
-      
-      console.log(`Using ${dbCars.length} database cars + ${supplementaryCars.length} supplementary cars`);
-    } else {
-      // Database already has diverse manufacturers
-      setAllCarsForRecommendation(dbCars);
-      console.log(`Using ${dbCars.length} database cars - good manufacturer diversity`);
-    }
-  };
-
-  // Get supplementary cars for diversity when database cars are all from one manufacturer
-  const getSupplementaryCars = () => {
-    return [
-      {
-        id: "supp-bmw-3",
-        source: 'supplementary',
-        manufacturer: "BMW",
-        model: "3 Series",
-        year: 2023,
-        body_type: "sedan",
-        fuel_type: "gasoline",
-        engine_info: "2.0L Turbocharged I4",
-        transmission: "8-Speed Automatic",
-        price: 43000,
-        isSupplementary: true,
-        mpg: 26
-      },
-      {
-        id: "supp-mercedes-c",
-        source: 'supplementary',
-        manufacturer: "Mercedes-Benz",
-        model: "C-Class",
-        year: 2023,
-        body_type: "sedan",
-        fuel_type: "gasoline",
-        engine_info: "2.0L Turbocharged I4",
-        transmission: "9-Speed Automatic",
-        price: 45000,
-        isSupplementary: true,
-        mpg: 25
-      },
-      {
-        id: "supp-toyota-camry",
-        source: 'supplementary',
-        manufacturer: "Toyota",
-        model: "Camry",
-        year: 2023,
-        body_type: "sedan",
-        fuel_type: "gasoline",
-        engine_info: "2.5L I4",
-        transmission: "8-Speed Automatic",
-        price: 27000,
-        isSupplementary: true,
-        mpg: 32
-      },
-      {
-        id: "supp-honda-accord",
-        source: 'supplementary',
-        manufacturer: "Honda",
-        model: "Accord",
-        year: 2023,
-        body_type: "sedan",
-        fuel_type: "gasoline",
-        engine_info: "1.5L Turbocharged I4",
-        transmission: "CVT",
-        price: 28000,
-        isSupplementary: true,
-        mpg: 33
-      },
-      {
-        id: "supp-jeep-grand-cherokee",
-        source: 'supplementary',
-        manufacturer: "Jeep",
-        model: "Grand Cherokee",
-        year: 2023,
-        body_type: "suv",
-        fuel_type: "gasoline",
-        engine_info: "3.6L V6",
-        transmission: "8-Speed Automatic",
-        price: 40000,
-        isSupplementary: true,
-        mpg: 22
-      },
-      {
-        id: "supp-ford-f150",
-        source: 'supplementary',
-        manufacturer: "Ford",
-        model: "F-150",
-        year: 2023,
-        body_type: "truck",
-        fuel_type: "gasoline",
-        engine_info: "3.5L EcoBoost V6",
-        transmission: "10-Speed Automatic",
-        price: 35000,
-        isSupplementary: true,
-        mpg: 22
-      },
-      {
-        id: "supp-tesla-model3",
-        source: 'supplementary',
-        manufacturer: "Tesla",
-        model: "Model 3",
-        year: 2023,
-        body_type: "sedan",
-        fuel_type: "electric",
-        engine_info: "Electric Motor",
-        transmission: "Single-Speed",
-        price: 45000,
-        isSupplementary: true,
-        mpg: 132 // MPGe
-      }
-    ];
-  };
 
   // Question bank for preference gathering
   const questions = [
@@ -573,23 +355,5 @@ const CarRecommendationWizard = ({
     </div>
   );
 };
-
-// Simple InfoIcon component
-const InfoIcon = ({ className }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="16" x2="12" y2="12"></line>
-    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-  </svg>
-);
 
 export default CarRecommendationWizard;
